@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAINER · Disdrometer</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-icon">◒</span><span>RAINER<small>DISDROMETER</small></span></a>
+    <nav aria-label="Ansichten">
+      <button data-view="overview" class="nav active">Übersicht</button>
+      <button data-view="comparison" class="nav">Gerätevergleich</button>
+      <button data-view="spectrum" class="nav">Partikelspektrum</button>
+      <button data-view="health" class="nav">Gerät &amp; Heizung</button>
+      <button data-view="quality" class="nav">Datenqualität</button>
+      <button data-view="import" class="nav">Daten hinzufügen</button>
+    </nav>
+    <div class="sidebar-bottom"><span class="local-dot"></span> Lokal auf deinem Rechner<br><span class="muted">Thies Clima · LNM 5.4110</span></div>
+  </aside>
+  <main>
+    <header><div><p class="eyebrow">MESSDATEN · THIES CLIMA</p><h1 id="page-title">Niederschlag im Überblick</h1></div>
+      <div class="header-actions"><span id="mode" class="badge">Lokale Messdaten</span><button id="export" class="secondary">Auswahl als CSV</button></div>
+    </header>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <section class="filters" aria-label="Geräte und Zeitraum">
+      <div class="device-row"><span class="filter-label">Geräte</span><div id="devices"></div><span id="availability" class="muted"></span></div>
+      <div class="time-row">
+        <div class="presets" aria-label="Zeitraum auswählen"><button data-hours="6">6 Stunden</button><button data-hours="24" class="selected">24 Stunden</button><button data-hours="168">7 Tage</button><button data-hours="720">30 Tage</button><button data-hours="all">Gesamt</button></div>
+        <div class="dates"><label>Von<input id="start" type="datetime-local"></label><label>Bis<input id="end" type="datetime-local"></label><button id="apply" class="primary">Anzeigen</button></div>
+      </div>
+      <div class="filter-foot"><div><button id="previous" class="small">Vorheriger Zeitraum</button><button id="next" class="small">Nächster Zeitraum</button></div><label class="resolution">Auflösung<select id="resolution"><option value="auto">Automatisch</option><option value="1">1 Minute</option><option value="5">5 Minuten</option><option value="15">15 Minuten</option><option value="60">1 Stunde</option><option value="1440">1 Tag</option></select></label></div>
+    </section>
+    <div id="empty" class="empty hidden"><h2>Deine Messdaten beginnen hier</h2><p>Lege je Gerät eine CSV-Datei im Ordner <code>daten</code> ab und prüfe die Zuordnung in <code>geraete.json</code>.</p><button id="empty-import" class="primary">Daten hinzufügen</button><p class="muted">Mit demo.cmd kannst du das Dashboard vorher mit künstlichen Messdaten kennenlernen.</p></div>
+    <div id="data-content">
+      <section id="view-overview" class="view">
+        <div id="stats" class="stats"></div>
+        <div class="plot-card"><div class="card-head"><div><h2>Wann und wie stark hat es geregnet?</h2><p id="resolution-note"></p></div><button class="small save-image" data-chart="intensity">PNG speichern</button></div><div class="chart" id="intensity"></div><div id="weather" class="weather"></div></div>
+        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Aufsummierter Niederschlag</h2><button class="small save-image" data-chart="cumulative">PNG</button></div><div class="chart" id="cumulative"></div></div><div class="plot-card"><div class="card-head"><h2>Gemessene Partikel</h2><button class="small save-image" data-chart="particles">PNG</button></div><div class="chart" id="particles"></div></div></div>
+        <div class="plot-card"><div class="card-head"><div><h2>Niederschlagsereignisse</h2><p>Ein Klick auf ein Ereignis öffnet seinen Zeitraum. Datenlücken unterbrechen Ereignisse.</p></div><label>Trockenpause<select id="dry"><option value="30">30 Minuten</option><option value="60" selected>60 Minuten</option><option value="120">120 Minuten</option></select></label></div><div id="events" class="table-wrap"></div></div>
+      </section>
+      <section id="view-comparison" class="view hidden">
+        <div class="plot-card"><div class="card-head"><div><h2>Geräte im selben Zeitfenster</h2><p>Die Tabelle nutzt ausschließlich Minuten mit beidseitig gültiger Intensität. Quotient = Gerät A / Gerät B.</p></div></div><div id="comparison" class="table-wrap"></div></div>
+        <div class="plot-card"><div class="card-head"><h2>Intensität im direkten Vergleich</h2><button class="small save-image" data-chart="compare-rain">PNG speichern</button></div><div class="chart" id="compare-rain"></div></div>
+        <div id="compare-size-note" class="hint">Die Größenverteilungen der Geräte findest du unter „Partikelspektrum“. Dort gilt der gesamte gewählte Zeitraum je Gerät.</div>
+      </section>
+      <section id="view-spectrum" class="view hidden">
+        <div class="plot-card"><div class="card-head"><div><h2>Durchmesser und Fallgeschwindigkeit</h2><p>Summierte Rohzählungen im gewählten Zeitraum · 22 × 20 Klassen · logarithmische Farbe</p></div><label>Gerät<select id="spectrum-device"></select></label></div><div id="heatmap" class="chart heatmap"></div><p class="hint">Die letzte Durchmesserklasse ist offen ab 8 mm. Die Farbstärke richtet sich nach dem Maximum des ausgewählten Geräts.</p></div>
+        <div class="plot-card"><div class="card-head"><div><h2>Partikelgrößen im Gerätevergleich</h2><p>Alle Geschwindigkeitsklassen zusammengefasst. Gültige Telegrammminuten je Gerät stehen in der Legende.</p></div><button class="small save-image" data-chart="sizes">PNG speichern</button></div><div class="chart" id="sizes"></div></div>
+      </section>
+      <section id="view-health" class="view hidden">
+        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Geräte- und Außentemperatur</h2></div><div id="temperatures" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Scheibenheizung</h2></div><div id="heaters" class="chart"></div></div></div>
+        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Versorgungsspannung</h2></div><div id="supply" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Regel-Istspannung</h2><span class="muted">Referenz 4010 ± 5 mV</span></div><div id="control" class="chart"></div></div></div>
+        <div class="hint">Die Temperatur- und Heizkurven lassen sich gemeinsam nach Uhrzeit untersuchen. In verdichteten Ansichten zeigt der Tooltip zusätzlich Minimum und Maximum der Spannungen.</div>
+      </section>
+      <section id="view-quality" class="view hidden">
+        <div class="plot-card"><div class="card-head"><div><h2>Abdeckung und Messqualität</h2><p>Erwartet wird jede Minute des gewählten Zeitfensters pro Gerät. Exportlücken zählen ebenfalls als fehlende Minuten.</p></div></div><div id="quality-table" class="table-wrap"></div></div>
+        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Klassifikationsqualität</h2></div><div id="quality" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Statusmeldungen</h2></div><div id="warnings" class="chart"></div></div></div>
+        <div class="plot-card"><div class="card-head"><h2>Aktive Statusflags im gewählten Zeitraum</h2></div><div id="flag-table" class="table-wrap"></div></div>
+      </section>
+    </div>
+    <section id="view-import" class="view hidden">
+      <div class="plot-card import-guide"><h2>Deine CSV-Dateien lokal einlesen</h2><ol><li>Lege deine Dateien im Projektordner unter <code>daten</code> ab.</li><li>Benenne sie <code>wald1.csv</code>, <code>wald2.csv</code> und <code>lichtung.csv</code>, oder passe die Pfade in <code>geraete.json</code> an.</li><li>Prüfe dort die <strong>Logger-ID</strong> jedes Geräts. Auch drei Dateien mit derselben ID lassen sich getrennten Standorten zuordnen.</li><li>Klicke auf „CSV-Dateien einlesen“. Der Import arbeitet im Hintergrund.</li></ol><p>Erwartetes Format wie bei deinem Loggerexport: Zeitstempel, Geräte-ID, Telegrammfelder. Semikolon, Tabulator und Komma werden erkannt. Echo-Zeilen anderer IDs werden übersprungen.</p>
+      <button id="import-button" class="primary">CSV-Dateien einlesen</button><span id="import-status" role="status" class="muted"></span><div id="import-results"></div></div>
+      <div class="plot-card"><div class="card-head"><h2>Konfigurierte Geräte</h2></div><div id="config-table" class="table-wrap"></div></div>
+      <div class="plot-card"><div class="card-head"><div><h2>Importprotokoll</h2><p>Fehler und Duplikate beziehen sich auf den gesamten jeweiligen Dateiimport.</p></div></div><div id="import-history" class="table-wrap"></div></div>
+    </section>
+    <footer><span id="footer-range"></span><span>Maus über eine Kurve für Werte · Ziehen zum Vergrößern · Doppelklick zum Zurücksetzen</span></footer>
+  </main>
+  <div id="tooltip" role="status" class="tooltip hidden"></div>
+</body>
+</html>

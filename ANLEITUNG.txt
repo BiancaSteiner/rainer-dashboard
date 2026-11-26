@@ -1,0 +1,206 @@
+RAINER – LOKALES DISDROMETER-DASHBOARD
+
+START
+
+1. Zum Kennenlernen demo.cmd doppelklicken.
+   Künstliche Beispieldaten von drei Geräten werden erzeugt.
+   Browseradresse: http://127.0.0.1:8766
+
+2. Für eigene Messdaten start.cmd doppelklicken.
+   Browseradresse: http://127.0.0.1:8765
+   Das geöffnete Konsolenfenster muss während der Nutzung offen bleiben.
+   Zum Beenden dort Strg+C drücken oder das Fenster schließen.
+
+Python 3.10 oder neuer wird benötigt. Es sind keine zusätzlichen Python-Pakete
+erforderlich. Der Starter sucht zuerst py bzw. python und anschließend die
+Python-Laufzeit einer lokal installierten Codex-App.
+Falls erforderlich, Python von https://www.python.org/downloads/ installieren.
+
+DATEN EINFÜGEN
+
+Die vollständigen Logger-CSV-Dateien können direkt verwendet werden.
+Eine vorherige Reduktion mit csv_kompakt.py ist optional.
+
+1. Kopiere deine drei CSV-Dateien in den Unterordner daten und benenne sie:
+   wald1.csv
+   wald2.csv
+   lichtung.csv
+
+2. Öffne geraete.json mit einem Texteditor und prüfe pro Gerät:
+   key        Dauerhafter eindeutiger Schlüssel, z. B. wald1.
+   name       Anzeigename, z. B. "Wald Nord".
+   csv        Dateipfad relativ zu diesem Projektordner.
+   id         Logger-ID in der ZWEITEN CSV-Spalte.
+   encoding   Standard "utf-8-sig", bei Windows-Zeichensatz ggf. "cp1252".
+   separator  Standard "auto", sonst ";" oder "\t" oder ",".
+
+   Die vorbelegten IDs 01/02/03 sind Beispiele. Wenn in jeder deiner Dateien
+   das relevante Gerät die ID 01 hat, setze in ALLEN drei Einträgen "id": "01".
+   Die verschiedenen key-Werte unterscheiden dann weiterhin die Standorte.
+
+   Anstelle des Kopierens kannst du absolute Pfade verwenden, beispielsweise:
+   "csv": "D:/Messdaten/Wald1/grosse_datei.csv"
+   Verwende in JSON am einfachsten Schrägstriche /.
+   Mehrere Dateien sind per Muster möglich, z. B. "daten/wald1/*.csv".
+   Ein Gerät pro Dateiquelle konfigurieren, und die Zuordnung vor dem Import prüfen.
+
+3. Starte start.cmd. Wähle im Browser "Daten hinzufügen" und klicke auf
+   "CSV-Dateien einlesen". Während des Imports erscheint der Fortschritt.
+   Bei großen Dateien kann das Einlesen einige Minuten dauern.
+
+4. Kontrolliere im Importprotokoll die Zahl der übernommenen Minuten,
+   Fehler und Konflikte. Unter "Übersicht" wählst du anschließend einen Zeitraum.
+
+5. Für zusätzliche Dateien oder angehängte Messungen erneut "CSV-Dateien
+   einlesen" klicken. Identische Dateien werden anhand ihres SHA-256-Werts
+   erkannt. Vorhandene Geräteminuten werden nicht doppelt gezählt.
+
+UNTERSTÜTZTES CSV-FORMAT
+
+Eine Zeile enthält Loggerzeit, Logger-ID, dann Telegramm 4 oder 5 mit seinen
+einzelnen Feldern – entsprechend dem bisher gezeigten Loggerexport.
+Beispielanfang bei Semikolontrennung:
+23.07.2026 03:55:08;01;[STX]01;4128;1.20;01.01.21;20:33:41;...
+
+Loggerzeit als TT.MM.JJJJ HH:MM[:SS] oder ISO JJJJ-MM-TT HH:MM[:SS].
+Semikolon, Tabulator oder Komma sind als Feldtrenner möglich.
+Einzelne fehlerhafte UTF-8-Bytes werden erkannt. Ist das Telegramm dadurch
+nicht lesbar, erscheint die Zeile als Importfehler. Fehlerhafte Zeilen mit
+gültiger Loggerzeit zählen weiterhin als protokollierter Abfrageversuch.
+Kopfzeilen und alleinstehende Telegramm-Endmarker werden erkannt.
+Zeilen mit anderen Logger-IDs werden übersprungen.
+Echo-Fehler für die ausgewählte ID werden als fehlgeschlagene Abfragen gezählt.
+Ein Telegramm in einer einzigen, zusätzlich in Anführungszeichen gekapselten
+CSV-Zelle sowie umbenannte/frei angeordnete Messspalten werden nicht unterstützt.
+
+ZEITRÄUME UND GRAFIKEN
+
+Die Buttons 6 Stunden, 24 Stunden, 7 Tage und 30 Tage beziehen sich auf das
+letzte verfügbare Datum der ausgewählten Geräte. "Gesamt" zeigt deren ganzen
+Datenbereich. Start- und Endminute werden eingeschlossen.
+Mit Von/Bis kannst du jeden eigenen Zeitraum festlegen.
+Vorheriger/Nächster Zeitraum verschieben das Fenster um seine aktuelle Länge.
+Mit gedrückter Maustaste einen Bereich in einer Zeitreihe aufziehen, um ihn
+zu vergrößern. Doppelklick kehrt zur Gesamtauswahl zurück.
+
+Die Maus über der Grafik zeigt exakte Zahlen für die dargestellten Punkte.
+Bei automatischer Verdichtung stehen die Zeitabschnittslänge und die
+Zusatzwerte im Tooltip. Für einzelne Originalminuten weiter hineinzoomen
+oder Auflösung "1 Minute" wählen. Mehr als 5000 Punkte je Gerät werden bei
+manueller Auflösung abgewiesen, um den Browser bedienbar zu halten.
+
+Intensität       Höchste originale Minutenintensität je Zeitabschnitt.
+                Der Tooltip ergänzt das Mittel und die Zahl gültiger Werte.
+Niederschlag     Summe gültiger Minutenintensitäten geteilt durch 60.
+                Der Gerätezähler wird für die Summe nicht verwendet.
+Partikel         Summe der gemeldeten Gesamtpartikelzahl je Zeitabschnitt.
+Temperaturen     Mittelwerte je Zeitabschnitt.
+Spannungen       Mittelwerte; Minimum und Maximum stehen im Tooltip.
+Heizung          Mittelwerte des Laser- und Empfängerkopfstroms.
+Qualität         Minimum je Zeitabschnitt; Mittelwert steht im Tooltip.
+Status           Anzahl Minuten mit mindestens einem aktiven Fehler-/Warnflag.
+Niederschlagsart Die häufigste gemeldete Art pro Zeitabschnitt als Farbe.
+                Der Tooltip enthält alle in diesem Abschnitt gemeldeten Arten.
+
+Die automatisch angepasste Auflösung beeinflusst nur die Diagramme.
+Summen, Maxima, Ereignisse und Vergleiche werden aus den Originalminuten
+berechnet. Grafiken verbinden vollständig fehlende Zeitabschnitte nicht.
+Lücken innerhalb eines verdichteten Abschnitts bleiben in dessen Kennzahlen
+enthalten und werden in der Qualitätsübersicht gezählt.
+
+GERÄTEVERGLEICH
+
+Wähle mindestens zwei Geräte über die Kontrollkästchen aus.
+Die paarweise Tabelle nutzt ausschließlich identische Logger-Minuten mit
+gültiger Intensität beider Geräte. Dadurch entstehen Niederschlagssummen,
+Maxima, Differenzen, Quotienten, Partikelzahlen und Korrelation für die
+gemeinsame zeitliche Abdeckung.
+Die darüber hinaus sichtbaren Zeitreihen zeigen jeweils alle verfügbaren
+Werte eines Geräts im Zeitfenster.
+
+PARTIKELSPEKTREN
+
+Die Heatmap enthält 22 Durchmesser- und 20 Geschwindigkeitsklassen.
+Die Klasse wird beim Darüberfahren mit ihren Grenzen und ihrer Anzahl angezeigt.
+Die logarithmische Farbskala wird pro Heatmap auf deren Maximum angepasst.
+Die offene Durchmesserklasse ab 8 mm wird zeichnerisch bis 8,5 mm dargestellt.
+Die Verteilungen zeigen absolute Partikelzählungen über alle
+Geschwindigkeitsklassen; sie sind nicht auf ein Luftvolumen normiert.
+Die Spektren enthalten alle erfolgreich dekodierten Telegramme im Zeitraum,
+einschließlich solcher mit ungültiger Intensität. Die Legende nennt jeweils
+die Zahl der verfügbaren Telegrammminuten. Unterschiedliche Abdeckungen sind
+beim Spektrenvergleich zu berücksichtigen.
+Die Gesamtpartikelzahl des Geräts kann von der Summe der 440 Rohklassen abweichen.
+
+EREIGNISSE UND QUALITÄT
+
+Ein Ereignis beginnt mit Intensität >0. Es endet bei mindestens 30, 60 oder
+120 vollständig beobachteten trockenen Minuten, je nach Auswahl.
+Fehlende oder ungültige Intensitäten unterbrechen ein Ereignis.
+Die Ereignistabelle enthält erste und letzte Nassminute, Gesamtdauer
+einschließlich kurzer Trockenpausen, Summe, Maximum, Zahl nasser Minuten,
+Partikelzahl der Nassminuten und deren minimale Klassifikationsqualität.
+Bis zu 500 Ereignisse des gewählten Zeitraums werden angezeigt.
+Am Rand des Fensters können Ereignisse abgeschnitten sein.
+
+Als gültige Intensitäten gelten vorhandene, nichtnegative Werte, deren
+Niederschlagsart weder Sensorfehler noch unbestimmter Niederschlag ist.
+Die Qualitätsschwellen 80 und 90 % werden getrennt ausgezählt. Eine niedrige
+Klassifikationsqualität entfernt einen ansonsten vorhandenen Messwert nicht.
+Erwartet wird eine Minute pro Gerät im gesamten gewählten Zeitfenster.
+Exportlücken und unterschiedliche Betriebszeiten beeinflussen die Abdeckung.
+Die Dashboard-Zeitbasis ist die Loggerzeit. Die Sensorzeit wird separat gespeichert.
+Alle Loggeruhren müssen für den Vergleich dieselbe Zeitbasis verwenden.
+Bei doppelten lokalen Uhrzeiten durch die Sommerzeitumstellung die Zeitstempel
+vorab auf eine einheitliche, eindeutige Zeitbasis umstellen.
+
+EXPORT UND SPEICHER
+
+"Auswahl als CSV" exportiert Originalminuten der ausgewählten Geräte und des
+Zeitfensters einschließlich Diagnosefeldern. Die Datei ist UTF-8 mit BOM und
+Semikolon als Trennzeichen und lässt sich in Excel importieren.
+"PNG" speichert die jeweilige dargestellte Kurve als Bild.
+
+Die Messdaten liegen dauerhaft in messdaten.sqlite im Projektordner.
+Spektren werden komprimiert gespeichert. Die Datenbank wird automatisch
+angelegt und beim nächsten Start wiederverwendet.
+Die Demo verwendet ausschließlich die eigene Datei demo.sqlite.
+CSV-Dateien und Datenbank sollten zusammen gesichert werden.
+
+Beim mehrfachen Vorkommen einer Geräteminute gewinnt der zuerst importierte
+Messwert. Abweichende Folgewerte zählen als Konflikte. Für vollständig
+korrigierte Quellen das Dashboard schließen, messdaten.sqlite samt ggf.
+vorhandener messdaten.sqlite-wal und messdaten.sqlite-shm unter anderem Namen
+als Sicherung ablegen und danach mit leerer Datenbank neu importieren.
+Das Importieren arbeitet pro Datei in einer Transaktion, sodass ein Abbruch
+keine halbfertig importierte Datei hinterlässt.
+Die Original-CSV-Dateien sind die unveränderte Quelle und sollten aufbewahrt werden.
+
+DATENSCHUTZ UND TECHNIK
+
+Der Server lauscht ausschließlich auf 127.0.0.1.
+Die Anwendung benötigt im Betrieb keine Internetverbindung. Sie verwendet
+lokale Schriftarten und enthält alle Grafikfunktionen. Import und Berechnung
+laufen auf diesem Rechner. Es gibt keine externen Skripte, Analysedienste
+oder Cloud-Schnittstellen.
+
+Für große Zeiträume werden die Diagrammdaten mit SQL verdichtet, bevor sie
+an den Browser gehen. Der Speicherbedarf des CSV-Imports bleibt unabhängig
+von der Dateigröße weitgehend konstant. Ein vollständiges Partikelspektrum
+über lange Zeiträume muss alle betreffenden Spektren lesen und kann länger dauern.
+Eine allgemeine maximale Dateigröße wird nicht zugesichert. Entscheidend sind
+freier Datenträgerspeicher, Anzahl der Minuten und Rechnerleistung.
+
+PRÜFUNG / FEHLERSUCHE
+
+Tests mit künstlichen Daten: py -3 -B pruefung.py
+Manueller Start: py -3 -B dashboard.py
+Anderer Port bei belegtem Anschluss: py -3 -B dashboard.py --port 8770
+
+Bleibt der Browser leer, das Konsolenfenster auf eine Fehlermeldung prüfen.
+Bei Importproblemen zuerst Geräte-ID, Pfad und Spaltentrenner kontrollieren.
+Unter "Daten hinzufügen" stehen Fehlerbeispiele mit Quellzeilennummer.
+
+Grundlage der Telegrammfelder und Klassengrenzen ist das Thies-Handbuch,
+Abschnitt 7.3.1 und Tabelle 6:
+https://www.thiesclima.com/db/dnl/5.4110.xx.x00_Laser_Precipitation_Monitor_eng.pdf

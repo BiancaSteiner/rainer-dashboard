@@ -1,0 +1,7 @@
+{
+  "devices": [
+    {"key": "wald1", "name": "Wald 1", "csv": "daten/wald1.csv", "id": "01", "encoding": "utf-8-sig", "separator": "auto"},
+    {"key": "wald2", "name": "Wald 2", "csv": "daten/wald2.csv", "id": "02", "encoding": "utf-8-sig", "separator": "auto"},
+    {"key": "lichtung", "name": "Lichtung", "csv": "daten/lichtung.csv", "id": "03", "encoding": "utf-8-sig", "separator": "auto"}
+  ]
+}

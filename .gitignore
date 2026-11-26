@@ -1,0 +1,7 @@
+daten/
+*.csv
+*.xlsx
+*.sqlite*
+__pycache__/
+.env
+.env.*
