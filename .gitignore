@@ -8,3 +8,4 @@ __pycache__/
 online-daten/
 .venv/
 .testdeps/
+node_modules/

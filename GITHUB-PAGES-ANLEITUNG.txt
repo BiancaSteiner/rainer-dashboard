@@ -1,0 +1,166 @@
+RAINER ÜBER GITHUB PAGES VERÖFFENTLICHEN
+
+Die neue Website liegt im Ordner docs. Sie läuft vollständig im Browser.
+Beim ersten Öffnen werden künstliche Beispieldaten für drei Geräte erzeugt.
+Eigene CSV-Dateien wählst du anschließend direkt in der Website aus.
+
+VERÖFFENTLICHEN
+
+1. Öffne GitHub Desktop und wähle rainer-dashboard.
+2. Trage bei Summary beispielsweise "Browser-Dashboard für GitHub Pages" ein.
+3. Klicke auf Commit to main und anschließend auf Push origin.
+4. Klicke auf Repository, dann View on GitHub.
+5. Öffne in deinem Repository Settings und danach links Pages.
+
+GitHub Pages steht mit GitHub Free für öffentliche Repositorys zur Verfügung.
+Bei privaten Repositorys ist ein passender kostenpflichtiger GitHub-Tarif nötig.
+Für die kostenlose Variante kannst du das Repository selbst öffentlich machen:
+Settings → General → ganz unten Danger Zone → Change repository visibility.
+Bestätige dort die von GitHub verlangten Schritte.
+Dadurch werden der Programmcode und dessen Git-Historie öffentlich.
+Prüfe vor dem Umstellen, dass du ausschließlich den vorgesehenen Programmcode
+ins Repository aufgenommen hast. Die CSVs werden später lokal im Browser ausgewählt.
+
+6. Unter Settings → Pages bei Build and deployment Folgendes einstellen:
+   Source: Deploy from a branch
+   Branch: main
+   Folder: /docs
+   Danach Save klicken.
+7. Warte, bis GitHub den erfolgreichen Aufbau meldet.
+   Unter Actions kann der Fortschritt von "pages build and deployment" stehen.
+   Unter Settings → Pages wird die veröffentlichte Adresse angezeigt.
+
+Die Adresse hat normalerweise dieses Format:
+https://DEIN-GITHUB-NAME.github.io/rainer-dashboard/
+
+Zum Teilen reicht dieser Link. Andere Personen können die Beispieldaten nutzen
+oder ihre eigenen Dateien auf ihrem jeweiligen Gerät auswählen.
+
+EIGENE MESSDATEN EINLESEN
+
+1. Öffne den veröffentlichten Link in einem aktuellen Browser.
+2. Wähle links Daten hinzufügen.
+3. Wähle den Standort, beispielsweise Wald 1.
+4. Gib die Logger-ID an, die in Spalte 2 deiner CSV steht.
+   Falls jedes Gerät in seiner eigenen Datei ID 01 hat, gib für jeden Standort
+   jeweils 01 ein. Die Standortauswahl unterscheidet die Geräte.
+5. Wähle eine oder mehrere CSV-Dateien für diesen Standort.
+6. Wähle bei Bedarf die passende Zeichenkodierung.
+7. Klicke auf Lokal einlesen und warte auf den Abschluss.
+8. Prüfe die übernommenen Minuten und die Fehlerbeispiele im Importprotokoll.
+9. Wiederhole das für die übrigen Standorte.
+
+Beim Einlesen wechselt die Website automatisch auf Eigene Messdaten.
+Die Beispieldaten liegen in einer getrennten Browserdatenbank.
+Du kannst oben zwischen Beispieldaten und eigenen Messdaten umschalten.
+
+FORMAT
+
+Das unterstützte Format entspricht dem bisherigen Loggerexport:
+Loggerzeit, Logger-ID, anschließend die Telegrammfelder von Telegramm 4 oder 5.
+Semikolon, Tabulator oder Komma werden automatisch erkannt.
+Loggerzeit als TT.MM.JJJJ HH:MM[:SS] oder JJJJ-MM-TT HH:MM[:SS].
+Die Loggerzeit ist die Zeitbasis für den Gerätevergleich.
+Alle Dateien müssen dieselbe, eindeutige Zeitbasis verwenden.
+
+Ein Gerät pro Standortauswahl einlesen. Zeilen anderer Logger-IDs werden übersprungen.
+Fehlermeldungen der ausgewählten ID zählen als fehlgeschlagene Abfragen.
+Ungültige numerische Felder, falsche Feldanzahl und defekte Spektren werden gemeldet.
+Erhaltene, unveränderte ASCII-Telegrammrahmen werden auf ihre Prüfsumme geprüft.
+Bei durch Excel oder andere Exportprogramme veränderten Rahmen steht der
+Prüfstatus auf nicht prüfbar. Originaldateien bitte weiterhin aufbewahren.
+
+Eine Minute wird je Standort nur einmal gespeichert. Bei abweichenden späteren
+Werten gewinnt der zuerst erfolgreich importierte Wert. Das Protokoll zeigt
+Duplikate und Konflikte. Die Geräte-ID kann bei allen drei Dateien identisch sein.
+
+Große Dateien werden in kleinen Abschnitten im Hintergrund eingelesen.
+Die vollständige Datei wird nicht auf einmal in den Arbeitsspeicher geladen.
+Wenige aktive Spektralklassen werden platzsparend gespeichert.
+Für die Diagramme werden die Originalminuten vor der Anzeige verdichtet.
+Ein vollständiger Import und ein großes Partikelspektrum können länger dauern.
+
+Wenn ein Import durch Schließen der Seite, einen Dateifehler oder fehlenden
+Speicher abbricht, bleibt eine unvollständige Datei aus den Auswertungen ausgeschlossen.
+Wähle die Originaldatei erneut aus. Beim nächsten Import werden abgebrochene
+Zwischendaten bereinigt. Bereits vollständig eingelesene Dateien bleiben verfügbar.
+
+ZEITRAUM UND VERGLEICH
+
+Die Zeitbuttons beziehen sich auf das letzte vorhandene Datum der ausgewählten
+Geräte. Mit Von/Bis oder durch Ziehen in einer Grafik lässt sich der Zeitraum
+gezielt auswählen. Ein Doppelklick zeigt wieder den ganzen Zeitraum.
+Die Maus über einer Grafik zeigt die Zahlen des dargestellten Datenpunkts.
+Bei Verdichtung steht auch die Länge des Zeitabschnitts im Tooltip.
+Für Originalminuten weiter hineinzoomen oder 1 Minute als Auflösung auswählen.
+
+Die Intensitätskurve zeigt das Maximum der ursprünglichen Minutenintensitäten
+pro Zeitabschnitt. Der Tooltip ergänzt Mittelwert und Anzahl gültiger Werte.
+Niederschlagssummen integrieren gültige Intensität / 60.
+Partikel sind die Summe der gemeldeten Partikelzahlen je Zeitabschnitt.
+Temperaturen und Heizströme werden gemittelt.
+Spannungen zeigen den Mittelwert sowie Minimum/Maximum im Tooltip.
+Die Qualitätskurve zeigt das Minimum und im Tooltip den Mittelwert.
+Statusmeldungen zählen Minuten mit mindestens einem aktiven Flag.
+
+Der paarweise Vergleich verwendet ausschließlich gemeinsame Logger-Minuten
+mit beidseitig gültiger Niederschlagsintensität.
+Fehlende und ungültige Intensitäten werden in den Summen nicht als trocken ergänzt.
+Die Spektren enthalten die Rohklassen aller dekodierten Telegramme des Zeitraums.
+Ihre Anzahl kann von der gemeldeten Gesamtpartikelzahl abweichen.
+Größenverteilungen sind absolute Zählungen. Die Zahl vorhandener Minuten je Gerät
+steht in der Legende. Unterschiedliche Abdeckungen sind beim Vergleich zu beachten.
+
+Ereignisse starten bei Intensität >0 und werden nach 30/60/120 beobachteten
+trockenen Minuten getrennt. Datenlücken und ungültige Intensitäten unterbrechen
+ein Ereignis. Ereignisse an den Rändern des gewählten Fensters können gekürzt sein.
+
+DATENSCHUTZ UND SPEICHER
+
+Die Website lädt die ausgewählten CSV-Dateien ausschließlich auf diesem Gerät
+in eine lokale Browserdatenbank. Der Anwendungscode führt keine HTTP-Uploads
+von Messdateien aus. Alle Diagramme und Berechnungen laufen im Browser.
+GitHub liefert den öffentlich veröffentlichten Programmcode und die Oberfläche aus.
+Die Website verwendet keine extern geladenen Grafikbibliotheken oder Analysedienste.
+
+Der Link kann überall geöffnet werden. Deine eigenen Messdaten sind an den
+jeweiligen Browser und dessen Profil auf dem jeweiligen Gerät gebunden.
+Sie werden nicht automatisch zwischen Geräten synchronisiert.
+Andere Besucher dieses Links sehen die Beispieldaten und ihre eigenen Importe.
+
+Beim Löschen der Website-Daten, beim Wechsel des Browserprofils oder auf einem
+anderen Gerät musst du die Original-CSVs erneut einlesen.
+Der Browser bestimmt den verfügbaren Speicher und kann ohne gewährte dauerhafte
+Speicherung Daten bei Speichermangel bereinigen.
+Unter Daten hinzufügen wird der geschätzte Speicherrahmen angezeigt.
+Bei einem Quotenfehler wird die angefangene Datei aus den Auswertungen ausgeschlossen.
+Für die Kontrolle und das Aufbewahren der Originaldateien bist du weiterhin zuständig.
+
+Eigene Browserdaten zurücksetzen entfernt die importierten Daten und Protokolle
+dieses Dashboards im aktuellen Browser nach deiner Bestätigung.
+Die Originaldateien auf deinem Rechner bleiben deine separat aufbewahrte Quelle.
+
+EXPORT
+
+Auswahl als CSV exportiert die Originalminuten des gewählten Zeitfensters mit
+Diagnosefeldern. In unterstützten Browsern wird direkt in eine ausgewählte Datei
+geschrieben. Andere Browser laden eine im Browser zusammengestellte Datei herunter.
+Bei sehr großen Exporten den Zeitraum gegebenenfalls in Abschnitte aufteilen.
+PNG speichert die dargestellte Grafik.
+
+Die bisherige Python-Anwendung und die zuvor vorbereiteten Render-Dateien können
+als frühere Betriebsvarianten im Repository liegen. Die GitHub-Pages-Veröffentlichung
+liefert ausschließlich den Ordner docs aus. Für diese Website sind ein Python-Server,
+ein Render-Konto und die dort hinterlegten Zugangsdaten nicht erforderlich.
+
+ENTWICKLUNGSPRÜFUNGEN
+
+Für die automatisierten Tests wird Node.js 24.5 oder neuer benötigt.
+Im Unterordner tests einmal npm install ausführen, danach npm test.
+Die Abhängigkeit fake-indexeddb dient ausschließlich den Tests.
+Die veröffentlichte Website selbst benötigt weder Installation noch npm-Pakete.
+
+QUELLEN
+
+https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria

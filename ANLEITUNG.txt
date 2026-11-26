@@ -1,7 +1,7 @@
 RAINER – LOKALES DISDROMETER-DASHBOARD
 
 Diese Anleitung beschreibt den lokalen Start mit start.cmd und demo.cmd.
-Für die neue geschützte Online-Version auf Render siehe RENDER-ANLEITUNG.txt.
+Für die bevorzugte Website über github.io siehe GITHUB-PAGES-ANLEITUNG.txt.
 
 START
 
