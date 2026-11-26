@@ -16,6 +16,7 @@ from protokoll import parse, timestamp
 
 ROOT = Path(__file__).resolve().parent
 DATABASE = ROOT / "messdaten.sqlite"
+CONFIG_PATH = ROOT / "geraete.json"
 NUMERIC = ["intensity", "particles", "quality", "interior", "laser_temp", "supply",
            "control", "heater_laser", "heater_receiver", "ambient", "warnings"]
 RECORD_KEYS = ["usable_intensity_mmh", "particle_count", "quality_pct", "interior_c",
@@ -63,7 +64,7 @@ def initialize(path=DATABASE):
 
 
 def config():
-    devices = json.loads((ROOT / "geraete.json").read_text(encoding="utf-8-sig"))["devices"]
+    devices = json.loads(CONFIG_PATH.read_text(encoding="utf-8-sig"))["devices"]
     keys = [d["key"] for d in devices]
     if len(set(keys)) != len(keys) or any(not re.fullmatch(r"[a-zA-Z0-9_-]+", k) for k in keys):
         raise ValueError("Geräte-Schlüssel müssen eindeutig sein und Buchstaben, Ziffern, _ oder - enthalten.")

@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: rainer-dashboard
+    runtime: python
+    region: frankfurt
+    plan: 0.5c-512mb
+    numInstances: 1
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --config gunicorn.conf.py wsgi:app
+    healthCheckPath: /healthz
+    disk:
+      name: rainer-messdaten
+      mountPath: /var/data
+      sizeGB: 10
+    envVars:
+      - key: RAINER_DATA_DIR
+        value: /var/data/rainer
+      - key: RAINER_USERNAME
+        value: admin
+      - key: RAINER_PASSWORD
+        sync: false
+      - key: RAINER_SECRET_KEY
+        generateValue: true
+      - key: RAINER_MAX_UPLOAD_GB
+        value: "20"

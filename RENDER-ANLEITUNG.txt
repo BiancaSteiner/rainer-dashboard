@@ -1,0 +1,183 @@
+RAINER-DASHBOARD AUF RENDER EINRICHTEN
+
+Die Online-Version enthält eine Anmeldung und einen CSV-Upload über den Browser.
+Die gewohnten lokalen Starts mit start.cmd und demo.cmd funktionieren weiterhin.
+Diese Anleitung setzt das vorhandene private GitHub-Repository voraus.
+
+1. DIE ÄNDERUNGEN ZU GITHUB HOCHLADEN
+
+Öffne GitHub Desktop und wähle rainer-dashboard.
+Unter Changes erscheinen die neuen und geänderten Dateien.
+Trage bei Summary z. B. "Online-Version mit Login und CSV-Upload" ein.
+Klicke auf Commit to main und anschließend auf Push origin.
+
+Die Datei render.yaml enthält die Einstellungen für Render.
+Es wurde ein einzelner Web-Service mit 0,5 CPU und 512 MB RAM sowie einem
+10-GB-Datenträger in Frankfurt vorbereitet. Diese Ressourcen sind kostenpflichtig.
+Die verbindlichen Preise zeigt Render vor dem Erstellen an.
+Der vorgeschlagene Datenträger kann vor dem Erstellen größer gewählt werden.
+Der Import benötigt Platz für die Datenbank, die CSV-Dateien und zeitweise eine
+zweite Kopie der gerade übertragenen Datei. Bei mehreren sehr großen CSVs können
+10 GB zu wenig sein. Die Anwendung prüft vor Uploadbeginn den freien Speicher.
+
+2. BEI RENDER ANMELDEN
+
+Öffne https://dashboard.render.com/ und melde dich an oder erstelle dein Konto.
+Falls Render beim Verbinden Zugriff auf GitHub anfordert, gib den Zugriff für
+das private Repository rainer-dashboard frei.
+Wähle möglichst nur dieses Repository aus.
+
+3. DEN VORBEREITETEN BLUEPRINT ANLEGEN
+
+Klicke im Render-Dashboard auf New und anschließend auf Blueprint.
+Verbinde dein Repository rainer-dashboard.
+Wenn es nicht erscheint, überprüfe die GitHub-Freigabe für Render.
+Wähle den Branch main und den Pfad render.yaml, falls danach gefragt wird.
+Gib dem Blueprint einen Namen, z. B. rainer-dashboard.
+
+Render liest die Konfiguration ein und zeigt die geplanten Ressourcen an.
+Überprüfe Web-Service, Region Frankfurt und den dauerhaften Datenträger.
+Trage bei RAINER_PASSWORD dein selbst gewähltes Dashboard-Passwort ein.
+Es muss mindestens 12 Zeichen haben.
+Der Benutzername ist zunächst admin.
+RAINER_SECRET_KEY wird von Render zufällig erzeugt.
+Passwort und Secret gehören in die Render-Einstellungen.
+
+Prüfe die angezeigten Kosten. Mit dem Erstellen bzw. Deployen beauftragst du
+den kostenpflichtigen Dienst. Bestätige diesen Schritt selbst.
+
+4. DEN ERSTEN START ABWARTEN
+
+Render installiert die Pakete und startet Gunicorn.
+Die Startanweisung aus render.yaml lautet:
+gunicorn --config gunicorn.conf.py wsgi:app
+
+Der Datenträger wird unter /var/data eingebunden.
+RAINER_DATA_DIR verweist auf /var/data/rainer.
+Nur Daten unter diesem Verzeichnis bleiben über Neustarts und Deployments erhalten.
+
+Warte, bis der Web-Service in Render als Live erscheint.
+Öffne die von Render angezeigte HTTPS-Adresse, z. B.
+https://rainer-dashboard-xxxx.onrender.com
+Der tatsächliche Name kann abweichen.
+
+Melde dich mit admin und deinem RAINER_PASSWORD an.
+Das Dashboard ist nach dem ersten Start leer.
+
+5. CSV-DATEIEN HOCHLADEN
+
+Öffne im Dashboard "Daten hinzufügen".
+Wähle den Standort, z. B. Wald 1, Wald 2 oder Lichtung.
+Trage die Logger-ID ein, die in Spalte 2 dieser CSV steht.
+Die Vorbelegung 01/02/03 stammt aus der bisherigen Konfiguration und ist
+vor dem jeweiligen Upload zu überprüfen. Wenn alle Dateien ID 01 enthalten,
+wähle für alle Standorte jeweils ID 01.
+
+Wähle deine CSV-Datei auf deinem Rechner aus.
+Lass die Zeichenkodierung zuerst auf UTF-8.
+Bei bekannten Windows-Dateien kann CP1252, bei entsprechenden Exporten UTF-16
+ausgewählt werden.
+Klicke auf "Hochladen und einlesen".
+
+Der Upload überträgt kleine Blöcke von höchstens 4 MB. Bei kurzen
+Verbindungsunterbrechungen wird ein Block automatisch erneut versucht.
+Nach der Übertragung läuft der Datenimport auf dem Server weiter.
+Warte, bis das Importprotokoll den Abschluss und die übernommenen Minuten zeigt.
+
+Wiederhole das für die anderen Standorte.
+Danach stehen Zeitraumwahl, Gerätevergleich, Diagnose und Partikelspektren
+mit deinen Daten zur Verfügung.
+
+Mit dem Upload überträgst du die ausgewählten Messdaten an deinen Server bei
+Render. Sie werden dort auf dem Datenträger gespeichert und sind über das
+Dashboard nach Anmeldung zugänglich.
+
+6. UNTERBROCHENE ÜBERTRAGUNG ODER IMPORT
+
+Wenn ein Upload abbricht, wähle im gleichen Browser erneut dieselbe Datei
+mit demselben Standort, derselben ID und Kodierung aus. Bereits vorhandene
+Blöcke dieser Übertragung werden erkannt und weiterverwendet.
+Der Browser merkt sich dafür die letzte Upload-ID und Dateieigenschaften.
+Ein erneuter Login kann nach Ablauf der Sitzung erforderlich sein.
+
+Bei einem unterbrochenen Import erscheint "Unterbrochenen Import fortsetzen".
+Dieser Button verwendet die bereits gespeicherte Datei bzw. deren Blöcke.
+Ein Serverneustart während des Imports führt zum Rückrollen der betroffenen
+Datenbanktransaktion. Derselbe Import kann anschließend erneut ausgeführt werden.
+
+Ein vorhandener Geräteminutenwert gewinnt weiterhin gegenüber später
+importierten Duplikaten. Abweichende Werte erscheinen als Konflikte im Protokoll.
+
+7. SPÄTERE CODEÄNDERUNGEN UND ZUGANGSDATEN
+
+Codeänderungen wie gewohnt mit GitHub Desktop committen und pushen.
+Je nach Render-Einstellung wird danach automatisch neu bereitgestellt.
+Vor einem Deployment einen laufenden Upload oder Import abschließen lassen.
+Ein einzelner Service mit Datenträger hat während der Bereitstellung eine
+kurze Unterbrechung.
+
+RAINER_PASSWORD lässt sich im Render-Service unter Environment ändern.
+Nach Speichern/Neustart werden bisherige Anmeldungen ungültig.
+RAINER_USERNAME ist der Benutzername.
+RAINER_SECRET_KEY bleibt dauerhaft in den Render-Einstellungen.
+Ein Wechsel dieses Werts meldet sämtliche Sitzungen ab.
+Die Sitzung läuft spätestens nach zwölf Stunden ab.
+
+Für eine eigene Domain zusätzlich RAINER_ALLOWED_HOSTS setzen, z. B.
+dein-service.onrender.com,dashboard.deine-domain.de
+Es werden reine Hostnamen ohne https:// und ohne Pfade erwartet.
+Ohne diese Einstellung verwendet die Anwendung RENDER_EXTERNAL_HOSTNAME.
+
+8. SPEICHER UND SICHERUNG
+
+Der Datenträger enthält insbesondere:
+/var/data/rainer/messdaten.sqlite
+/var/data/rainer/geraete.json
+/var/data/rainer/uploads/
+
+Die vollständigen hochgeladenen CSV-Dateien werden im Uploadverzeichnis
+aufbewahrt. Erfolgreich zusammengesetzte Blockkopien werden entfernt.
+Frühere Uploads bleiben gespeichert. Beobachte deshalb den belegten Speicher.
+Den Datenträger kannst du über Render vergrößern.
+Der dauerhafte Datenträger ersetzt keine zusätzliche Sicherung.
+Bewahre deine Originaldateien auf. Der CSV-Export des Dashboards sichert
+ausgewählte Minutenwerte, aber keine vollständigen Rohspektren.
+
+Beim ersten Start wird geraete.json aus dem Repository als Vorlage auf den
+Datenträger kopiert. Danach verwendet die Online-Version die dort gespeicherte
+Konfiguration, einschließlich der beim Upload gewählten ID und Kodierung.
+Änderungen an der Vorlage im Repository überschreiben bestehende Einstellungen
+auf dem Datenträger daher nicht automatisch.
+
+9. FEHLERSUCHE
+
+Build failed:
+Prüfe die Render-Logs und die Build-Anweisung pip install -r requirements.txt.
+
+Start fehlgeschlagen:
+Prüfe, ob RAINER_PASSWORD mindestens 12 Zeichen und RAINER_SECRET_KEY mindestens
+32 Zeichen enthält. Kontrolliere den Datenträger und RAINER_DATA_DIR.
+
+Health check failed:
+Health-Check-Pfad ist /healthz. Die Startanweisung muss wsgi:app verwenden.
+dashboard.py ist weiterhin der lokale Einstieg.
+
+Ungültiger Host:
+Prüfe RENDER_EXTERNAL_HOSTNAME bzw. RAINER_ALLOWED_HOSTS.
+
+Zu wenig Speicher:
+Vergrößere den Datenträger im Render-Service.
+
+Keine Minuten importiert:
+Prüfe Standort, Logger-ID, Zeichenkodierung und die Fehlerbeispiele im
+Importprotokoll. Erwartetes Format siehe ANLEITUNG.txt.
+
+Tests nach Installation der Abhängigkeiten:
+python -m unittest pruefung test_online -v
+
+QUELLEN
+
+https://render.com/docs/blueprint-spec
+https://render.com/docs/disks
+https://render.com/docs/web-services
+https://flask.palletsprojects.com/en/stable/web-security/

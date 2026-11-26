@@ -6,6 +6,7 @@
   <title>RAINER · Disdrometer</title>
   <link rel="stylesheet" href="/style.css">
   <script defer src="/app.js"></script>
+  <script defer src="/upload.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -18,11 +19,11 @@
       <button data-view="quality" class="nav">Datenqualität</button>
       <button data-view="import" class="nav">Daten hinzufügen</button>
     </nav>
-    <div class="sidebar-bottom"><span class="local-dot"></span> Lokal auf deinem Rechner<br><span class="muted">Thies Clima · LNM 5.4110</span></div>
+    <div class="sidebar-bottom"><span class="local-dot"></span> <span id="connection-label">Lokal auf deinem Rechner</span><br><span class="muted">Thies Clima · LNM 5.4110</span></div>
   </aside>
   <main>
     <header><div><p class="eyebrow">MESSDATEN · THIES CLIMA</p><h1 id="page-title">Niederschlag im Überblick</h1></div>
-      <div class="header-actions"><span id="mode" class="badge">Lokale Messdaten</span><button id="export" class="secondary">Auswahl als CSV</button></div>
+      <div class="header-actions"><span id="mode" class="badge">Lokale Messdaten</span><button id="export" class="secondary">Auswahl als CSV</button><form id="logout-form" action="/logout" method="post" class="hidden"><input id="logout-csrf" type="hidden" name="csrf"><button class="secondary" type="submit">Abmelden</button></form></div>
     </header>
     <div id="notice" role="status" aria-live="polite"></div>
     <section class="filters" aria-label="Geräte und Zeitraum">
@@ -62,7 +63,21 @@
       </section>
     </div>
     <section id="view-import" class="view hidden">
-      <div class="plot-card import-guide"><h2>Deine CSV-Dateien lokal einlesen</h2><ol><li>Lege deine Dateien im Projektordner unter <code>daten</code> ab.</li><li>Benenne sie <code>wald1.csv</code>, <code>wald2.csv</code> und <code>lichtung.csv</code>, oder passe die Pfade in <code>geraete.json</code> an.</li><li>Prüfe dort die <strong>Logger-ID</strong> jedes Geräts. Auch drei Dateien mit derselben ID lassen sich getrennten Standorten zuordnen.</li><li>Klicke auf „CSV-Dateien einlesen“. Der Import arbeitet im Hintergrund.</li></ol><p>Erwartetes Format wie bei deinem Loggerexport: Zeitstempel, Geräte-ID, Telegrammfelder. Semikolon, Tabulator und Komma werden erkannt. Echo-Zeilen anderer IDs werden übersprungen.</p>
+      <div id="upload-card" class="plot-card hidden">
+        <h2>CSV-Datei hochladen und einlesen</h2>
+        <p class="hint">Wähle den Standort und die Logger-ID in deiner Datei. Große Dateien werden in kleinen Blöcken übertragen und anschließend auf dem Server ausgewertet.</p>
+        <form id="upload-form" class="upload-fields">
+          <label>Standort<select id="upload-device" required></select></label>
+          <label>Logger-ID<input id="upload-id" value="01" pattern="[0-9]{1,2}" maxlength="2" required inputmode="numeric"></label>
+          <label>Zeichenkodierung<select id="upload-encoding"><option value="utf-8-sig">UTF-8 (Standard)</option><option value="cp1252">Windows (CP1252)</option><option value="utf-16">UTF-16</option></select></label>
+          <label class="upload-file">CSV-Datei<input id="upload-file" type="file" accept=".csv" required></label>
+          <button id="upload-button" class="primary" type="submit">Hochladen und einlesen</button>
+        </form>
+        <progress id="upload-progress" value="0" max="100" class="hidden" aria-label="Uploadfortschritt"></progress>
+        <p id="upload-message" class="hint" role="status" aria-live="polite"></p>
+        <button id="resume-import" class="secondary hidden">Unterbrochenen Import fortsetzen</button>
+      </div>
+      <div class="plot-card import-guide"><div id="local-import-guide"><h2>Deine CSV-Dateien lokal einlesen</h2><ol><li>Lege deine Dateien im Projektordner unter <code>daten</code> ab.</li><li>Benenne sie <code>wald1.csv</code>, <code>wald2.csv</code> und <code>lichtung.csv</code>, oder passe die Pfade in <code>geraete.json</code> an.</li><li>Prüfe dort die <strong>Logger-ID</strong> jedes Geräts. Auch drei Dateien mit derselben ID lassen sich getrennten Standorten zuordnen.</li><li>Klicke auf „CSV-Dateien einlesen“. Der Import arbeitet im Hintergrund.</li></ol><p>Erwartetes Format wie bei deinem Loggerexport: Zeitstempel, Geräte-ID, Telegrammfelder. Semikolon, Tabulator und Komma werden erkannt. Echo-Zeilen anderer IDs werden übersprungen.</p></div>
       <button id="import-button" class="primary">CSV-Dateien einlesen</button><span id="import-status" role="status" class="muted"></span><div id="import-results"></div></div>
       <div class="plot-card"><div class="card-head"><h2>Konfigurierte Geräte</h2></div><div id="config-table" class="table-wrap"></div></div>
       <div class="plot-card"><div class="card-head"><div><h2>Importprotokoll</h2><p>Fehler und Duplikate beziehen sich auf den gesamten jeweiligen Dateiimport.</p></div></div><div id="import-history" class="table-wrap"></div></div>

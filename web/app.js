@@ -26,6 +26,7 @@ function notify(message, error=false) {
 }
 async function api(url, signal) {
   const response = await fetch(url,{signal});
+  if(response.status===401){window.location.assign("/login");throw Error("Bitte erneut anmelden.");}
   const data = await response.json();
   if (!response.ok) throw Error(data.error || "Anfrage fehlgeschlagen.");
   return data;
@@ -391,7 +392,18 @@ async function load() {
 async function refreshMeta(initial=false){
   meta=await api("/api/meta");
   if(initial)selected=meta.devices.map(d=>d.key);
-  $("mode").textContent=meta.demo?"Demonstrationsdaten":"Lokale Messdaten";$("mode").classList.toggle("demo",meta.demo);
+  $("mode").textContent=meta.demo?"Demonstrationsdaten":meta.online?"Geschütztes Dashboard":"Lokale Messdaten";$("mode").classList.toggle("demo",meta.demo);
+  $("connection-label").textContent=meta.online?"Geschützter Serverzugriff":"Lokal auf deinem Rechner";
+  $("logout-form").classList.toggle("hidden",!meta.online);
+  $("logout-csrf").value=meta.token;
+  $("upload-card").classList.toggle("hidden",!meta.online);
+  $("local-import-guide").classList.toggle("hidden",!!meta.online);
+  if(meta.online)$("import-button").textContent="Gespeicherte CSVs erneut einlesen";
+  if(meta.online){
+    $("empty").querySelector("p").textContent="Lade deine CSV-Dateien unter „Daten hinzufügen“ hoch und wähle dabei den Standort und die Logger-ID.";
+    $("empty").querySelector("p.muted").classList.add("hidden");
+  }
+  window.rainerUpload?.refresh(meta);
   $("devices").innerHTML=meta.devices.map(d=>`<label class="device-check"><input type="checkbox" value="${esc(d.key)}" ${selected.includes(d.key)?"checked":""}><i class="swatch" style="background:${color(d.key)}"></i>${esc(d.name)}</label>`).join("");
   $("devices").querySelectorAll("input").forEach(input=>input.addEventListener("change",()=>{
     selected=[...$("devices").querySelectorAll("input:checked")].map(i=>i.value);
@@ -424,7 +436,13 @@ function renderImportResults(state){
   $("import-results").innerHTML=state.results.map(r=>`<p><b>${esc(name(r.device))}</b> · ${esc(r.file||"")} · ${esc(r.status)}${r.accepted!=null?" · "+fmt(r.accepted,0)+" Minuten übernommen":""}${r.error?" · "+esc(r.error):""}</p>`).join("");
 }
 let polling=false;
-async function pollImport(){
+let pollingPromise=null;
+function pollImport(){
+  if(pollingPromise)return pollingPromise;
+  pollingPromise=pollImportLoop().finally(()=>{pollingPromise=null;});
+  return pollingPromise;
+}
+async function pollImportLoop(){
   if(polling)return;
   polling=true;
   try{

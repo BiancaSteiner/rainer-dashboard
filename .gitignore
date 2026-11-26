@@ -5,3 +5,6 @@ daten/
 __pycache__/
 .env
 .env.*
+online-daten/
+.venv/
+.testdeps/

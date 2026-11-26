@@ -287,6 +287,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             static = {"/": ("index.html", "text/html; charset=utf-8"),
                       "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+                      "/upload.js": ("upload.js", "text/javascript; charset=utf-8"),
                       "/style.css": ("style.css", "text/css; charset=utf-8")}
             if path in static:
                 filename, mime = static[path]
