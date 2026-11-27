@@ -1,4 +1,5 @@
 import {BrowserData} from "./database.mjs";
+import {analyse,exportAnalysis} from "./physics.mjs";
 
 const databases=new Map(),controllers=new Map(),acks=new Map();
 let mode="demo";
@@ -28,6 +29,7 @@ self.onmessage=async event=>{
         const url=new URL(args.url,"https://local.invalid"),params=url.searchParams;
         if(url.pathname==="/api/meta")result=await db.meta();
         else if(url.pathname==="/api/imports")result=await db.history();
+        else if(url.pathname==="/api/analysis")result=await shared(db,signal,()=>analyse(db,params,signal));
         else{
           const methods={"/api/overview":"overview","/api/comparison":"comparison","/api/events":"events","/api/spectrum":"spectrum"};
           const method=methods[url.pathname];
@@ -39,10 +41,13 @@ self.onmessage=async event=>{
       }else if(command==="clear"){
         await db.clear();result=await db.meta();
       }else if(command==="export"){
-        result=await shared(db,signal,()=>db.export(new URLSearchParams(args.params),async chunk=>{
+        const parameters=new URLSearchParams(args.params);
+        const send=async chunk=>{
           signal.throwIfAborted();
           await new Promise(resolve=>{acks.set(id,resolve);self.postMessage({id,chunk});});
-        },signal));
+        };
+        result=await shared(db,signal,()=>parameters.get("focus")==="rain"?
+          exportAnalysis(db,parameters,send,signal):db.export(parameters,send,signal));
       }else throw Error("Unbekannte Aktion");
     }
     self.postMessage({id,result});

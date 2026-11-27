@@ -1,3 +1,95 @@
+AKTUELLE FOKUSANSICHT – TROPFEN, ENERGIE UND GERÄTEVERGLEICH
+
+Die Website hat drei Ansichten:
+- Tropfen & Energie zeigt Anzahl und Größenklassen über der Zeit, mittleren
+  Durchmesser, kinetischen Energieeintrag und dessen Summe, Regenintensität,
+  Innentemperatur und automatisch erkannte Regenereignisse.
+- Spektren vergleichen zeigt alle ausgewählten Geräte nebeneinander auf einer
+  gemeinsamen Farbskala und paarweise Differenzen mit symmetrischer Skala um null.
+- Daten hinzufügen enthält den bisherigen lokalen CSV-Import und das Importprotokoll.
+
+Die gemeinsame gültige Datenbasis ist voreingestellt. Dabei werden für die
+Tropfen- und Energieauswertung nur Minuten verwendet, die bei allen ausgewählten
+Geräten vorhanden und für Regen oder Trockenheit verwertbar sind.
+Wenn ein Gerät im Zeitraum ausgefallen ist, kann die gemeinsame Basis leer sein.
+Dann Zeitraum/Geräteauswahl ändern oder den Haken für gemeinsame Minuten lösen.
+Die Differenzdarstellungen verwenden immer gemeinsame Minuten des jeweiligen Paars.
+Die Innentemperaturen und Ereignisse nutzen die jeweils verfügbaren Geräteminuten.
+
+FARBEN
+
+Alle Zeit-Größen-Heatmaps teilen eine Skala. Alle Durchmesser-Geschwindigkeits-
+Heatmaps teilen ebenfalls eine Skala. Gleicher Farbton bedeutet innerhalb dieses
+Diagrammtyps bei jedem Gerät denselben numerischen Wert.
+Die Farbe zeigt Anzahlen pro Minute und Klasse. Der Tooltip nennt die Werte.
+Die Skala wird aus allen ausgewählten Geräten im aktuellen Zeitraum bestimmt.
+Ein Wechsel von Zeitraum, Geräten oder Flächenbezug kann die gemeinsame Skala ändern.
+
+Differenzen sind A minus B. Orange bedeutet einen höheren Wert bei A,
+Blau einen höheren Wert bei B. Die Differenzskala ist linear und symmetrisch um null.
+Ihr Maximalbetrag wird aus allen ausgewählten Gerätepaaren im Zeitraum bestimmt.
+
+KINETISCHE ENERGIE
+
+Pro Durchmesser-Geschwindigkeitsklasse wird gerechnet:
+E = Anzahl * 0,5 * rho * (pi/6) * D^3 * v^2
+rho = 1000 kg/m³; D wird von Millimetern in Meter umgerechnet.
+D und v sind die arithmetischen Mitten der Thies-Klassen.
+Es werden Regen, Niesel und Regen mit Niesel bei gültiger Intensität betrachtet.
+Trockenminuten gehen mit null ein. Schnee, Mischformen, unbekannte Art und
+ungültige Intensität bilden Lücken in der Tropfen-/Energieauswertung.
+Die gemeldete Geräteintensität wird zur Klassifikation und Ereigniserkennung
+verwendet. Die Energie selbst kommt aus dem 440-Klassen-Spektrum.
+
+Die offene Durchmesserklasse ab 8 mm hat keine definierte Klassenmitte.
+Ihre Tropfen werden in Anzahlen dargestellt, aber bei Energie und mittlerem
+Durchmesser ausgelassen. Die Anzahl dieser Tropfen steht in Übersicht/Ereignissen.
+Energieergebnisse sind damit die Näherung für die endlichen Klassen unter 8 mm.
+Die breite letzte Geschwindigkeitsklasse 10–20 m/s verwendet die Mitte 15 m/s.
+Eine Korrektur auf eine theoretische Endfallgeschwindigkeit wird nicht angewandt.
+
+Standard ist die auf der jeweiligen Gerätefläche erfasste Energie in J.
+Die Kurve zeigt den mittleren Energieeintrag je Messminute in J/min,
+die Summenkurve und Ereignistabelle die aufsummierte Energie in J.
+Die Größenzählungen stammen aus den 440 Rohklassen und können von der im
+Telegramm gemeldeten Gesamtpartikelzahl abweichen.
+
+Für J/m² und Tropfen/m² den AU-Wert jedes Geräts unter Messflächen eintragen.
+Laut Thies, Befehl <id>AU:
+A[m²] = 4600 mm² * 1000 / AU / 1000000
+Beispiel AU 1000 ergibt 0,0046 m² = 46 cm².
+Der AU-Wert ist gerätespezifisch und kann nicht aus dem vorhandenen Spektrum
+abgeleitet werden. Für eigene Daten bleibt er zunächst leer. Für die künstliche
+Demo ist AU 1000 vorbelegt. Es wird kein Wert für deine echten Geräte angenommen.
+Die Flächeneinstellung wird getrennt für eigene Daten und Demo im Browser gespeichert.
+Bei Flächenbezug werden sowohl Anzahl als auch Energie durch die Messfläche geteilt.
+
+EREIGNISSE
+
+Die einstellbare Trockenpause beträgt 30, 60 oder 120 beobachtete Minuten.
+Datenlücken und nicht als Regen/Trocken verwertbare Minuten unterbrechen Ereignisse.
+Start/Ende beziehen sich auf erste und letzte Nassminute. Die Ereignistabelle
+enthält Dauer, Nassminuten, Regenmenge, Tropfenanzahl und kinetische Energie.
+Tropfenanzahl und Energie in dieser Tabelle beziehen sich auf die Nassminuten
+jedes Geräts. Sie sind unabhängig von der gemeinsamen Zeitbasis der Vergleichsplots.
+Ein Klick öffnet den Ereigniszeitraum.
+
+EXPORT
+
+Der CSV-Export enthält die Originalminuten je ausgewähltem Gerät einschließlich
+Nutzbarkeit als Regen/Trocken, Tropfenzahl, mittlerem Durchmesser, Energie in J,
+optional J/m², Messfläche, Anzahl der offenen Klasse, Innentemperatur und 22
+Durchmesserklassen. Er enthält auch nicht verwertbare Minuten mit entsprechend
+leeren Tropfen-/Energiewerten. Die gemeinsame Maske der Vergleichsplots wird nicht
+auf den Rohminutenexport angewandt.
+
+GRUNDLAGEN
+
+https://www.thiesclima.com/pt/db/dnl/5.4110.xx.x00_laser_precipitation_monitor_eng.pdf
+https://hess.copernicus.org/articles/22/2811/2018/
+
+VERÖFFENTLICHUNG UND DATENIMPORT
+
 RAINER ÜBER GITHUB PAGES VERÖFFENTLICHEN
 
 Die neue Website liegt im Ordner docs. Sie läuft vollständig im Browser.
@@ -93,27 +185,6 @@ gezielt auswählen. Ein Doppelklick zeigt wieder den ganzen Zeitraum.
 Die Maus über einer Grafik zeigt die Zahlen des dargestellten Datenpunkts.
 Bei Verdichtung steht auch die Länge des Zeitabschnitts im Tooltip.
 Für Originalminuten weiter hineinzoomen oder 1 Minute als Auflösung auswählen.
-
-Die Intensitätskurve zeigt das Maximum der ursprünglichen Minutenintensitäten
-pro Zeitabschnitt. Der Tooltip ergänzt Mittelwert und Anzahl gültiger Werte.
-Niederschlagssummen integrieren gültige Intensität / 60.
-Partikel sind die Summe der gemeldeten Partikelzahlen je Zeitabschnitt.
-Temperaturen und Heizströme werden gemittelt.
-Spannungen zeigen den Mittelwert sowie Minimum/Maximum im Tooltip.
-Die Qualitätskurve zeigt das Minimum und im Tooltip den Mittelwert.
-Statusmeldungen zählen Minuten mit mindestens einem aktiven Flag.
-
-Der paarweise Vergleich verwendet ausschließlich gemeinsame Logger-Minuten
-mit beidseitig gültiger Niederschlagsintensität.
-Fehlende und ungültige Intensitäten werden in den Summen nicht als trocken ergänzt.
-Die Spektren enthalten die Rohklassen aller dekodierten Telegramme des Zeitraums.
-Ihre Anzahl kann von der gemeldeten Gesamtpartikelzahl abweichen.
-Größenverteilungen sind absolute Zählungen. Die Zahl vorhandener Minuten je Gerät
-steht in der Legende. Unterschiedliche Abdeckungen sind beim Vergleich zu beachten.
-
-Ereignisse starten bei Intensität >0 und werden nach 30/60/120 beobachteten
-trockenen Minuten getrennt. Datenlücken und ungültige Intensitäten unterbrechen
-ein Ereignis. Ereignisse an den Rändern des gewählten Fensters können gekürzt sein.
 
 DATENSCHUTZ UND SPEICHER
 

@@ -49,7 +49,7 @@ window.browserImport=(()=>{
       await refreshMeta(true);await renderImport();
       const failures=results.filter(r=>r.status==="Fehler").length;
       message(failures?"Import abgeschlossen. Bitte die "+failures+" Fehlermeldung(en) im Protokoll prüfen.":
-        "Import abgeschlossen. Deine Daten stehen jetzt in Übersicht und Gerätevergleich zur Verfügung.");
+        "Import abgeschlossen. Deine Daten stehen jetzt in den Diagrammen und Gerätevergleichen zur Verfügung.");
       $("upload-file").value="";
     }catch(error){message(error.message);}
     finally{

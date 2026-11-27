@@ -1,89 +1,53 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; worker-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; base-uri 'self'; form-action 'none'">
-  <title>RAINER · Disdrometer</title>
-  <link rel="stylesheet" href="./style.css">
-  <script defer src="./browser-client.js"></script>
-  <script defer src="./app.js"></script>
-  <script defer src="./import.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; worker-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; base-uri 'self'; form-action 'none'">
+<title>RAINER · Tropfen & Energie</title>
+<link rel="stylesheet" href="./style.css">
+<script defer src="./browser-client.js"></script><script defer src="./app.js"></script><script defer src="./import.js"></script>
 </head>
 <body>
-  <aside class="sidebar">
-    <a class="brand" href="./"><span class="brand-icon">◒</span><span>RAINER<small>DISDROMETER</small></span></a>
-    <nav aria-label="Ansichten">
-      <button data-view="overview" class="nav active">Übersicht</button>
-      <button data-view="comparison" class="nav">Gerätevergleich</button>
-      <button data-view="spectrum" class="nav">Partikelspektrum</button>
-      <button data-view="health" class="nav">Gerät &amp; Heizung</button>
-      <button data-view="quality" class="nav">Datenqualität</button>
-      <button data-view="import" class="nav">Daten hinzufügen</button>
-    </nav>
-    <div class="sidebar-bottom"><span class="local-dot"></span> Im Browser verarbeitet<br><span class="muted">Thies Clima · LNM 5.4110</span></div>
-  </aside>
-  <main>
-    <header><div><p class="eyebrow">MESSDATEN · THIES CLIMA</p><h1 id="page-title">Niederschlag im Überblick</h1></div>
-      <div class="header-actions"><label>Datensatz<select id="dataset"><option value="demo">Beispieldaten</option><option value="own">Eigene Messdaten</option></select></label><span id="mode" class="badge">Beispieldaten</span><button id="export" class="secondary">Auswahl als CSV</button></div>
-    </header>
-    <div id="notice" role="status" aria-live="polite"></div>
-    <section class="filters" aria-label="Geräte und Zeitraum">
-      <div class="device-row"><span class="filter-label">Geräte</span><div id="devices"></div><span id="availability" class="muted"></span></div>
-      <div class="time-row">
-        <div class="presets" aria-label="Zeitraum auswählen"><button data-hours="6">6 Stunden</button><button data-hours="24" class="selected">24 Stunden</button><button data-hours="168">7 Tage</button><button data-hours="720">30 Tage</button><button data-hours="all">Gesamt</button></div>
-        <div class="dates"><label>Von<input id="start" type="datetime-local"></label><label>Bis<input id="end" type="datetime-local"></label><button id="apply" class="primary">Anzeigen</button></div>
-      </div>
-      <div class="filter-foot"><div><button id="previous" class="small">Vorheriger Zeitraum</button><button id="next" class="small">Nächster Zeitraum</button></div><label class="resolution">Auflösung<select id="resolution"><option value="auto">Automatisch</option><option value="1">1 Minute</option><option value="5">5 Minuten</option><option value="15">15 Minuten</option><option value="60">1 Stunde</option><option value="1440">1 Tag</option></select></label></div>
-    </section>
-    <div id="empty" class="empty hidden"><h2>Deine Messdaten beginnen hier</h2><p>Wähle deine CSV-Dateien unter „Daten hinzufügen“ aus. Sie werden auf diesem Gerät verarbeitet und gespeichert.</p><button id="empty-import" class="primary">Daten hinzufügen</button><p class="muted">Über die Datensatzauswahl kannst du jederzeit die Beispieldaten ansehen.</p></div>
-    <div id="data-content">
-      <section id="view-overview" class="view">
-        <div id="stats" class="stats"></div>
-        <div class="plot-card"><div class="card-head"><div><h2>Wann und wie stark hat es geregnet?</h2><p id="resolution-note"></p></div><button class="small save-image" data-chart="intensity">PNG speichern</button></div><div class="chart" id="intensity"></div><div id="weather" class="weather"></div></div>
-        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Aufsummierter Niederschlag</h2><button class="small save-image" data-chart="cumulative">PNG</button></div><div class="chart" id="cumulative"></div></div><div class="plot-card"><div class="card-head"><h2>Gemessene Partikel</h2><button class="small save-image" data-chart="particles">PNG</button></div><div class="chart" id="particles"></div></div></div>
-        <div class="plot-card"><div class="card-head"><div><h2>Niederschlagsereignisse</h2><p>Ein Klick auf ein Ereignis öffnet seinen Zeitraum. Datenlücken unterbrechen Ereignisse.</p></div><label>Trockenpause<select id="dry"><option value="30">30 Minuten</option><option value="60" selected>60 Minuten</option><option value="120">120 Minuten</option></select></label></div><div id="events" class="table-wrap"></div></div>
-      </section>
-      <section id="view-comparison" class="view hidden">
-        <div class="plot-card"><div class="card-head"><div><h2>Geräte im selben Zeitfenster</h2><p>Die Tabelle nutzt ausschließlich Minuten mit beidseitig gültiger Intensität. Quotient = Gerät A / Gerät B.</p></div></div><div id="comparison" class="table-wrap"></div></div>
-        <div class="plot-card"><div class="card-head"><h2>Intensität im direkten Vergleich</h2><button class="small save-image" data-chart="compare-rain">PNG speichern</button></div><div class="chart" id="compare-rain"></div></div>
-        <div id="compare-size-note" class="hint">Die Größenverteilungen der Geräte findest du unter „Partikelspektrum“. Dort gilt der gesamte gewählte Zeitraum je Gerät.</div>
-      </section>
-      <section id="view-spectrum" class="view hidden">
-        <div class="plot-card"><div class="card-head"><div><h2>Durchmesser und Fallgeschwindigkeit</h2><p>Summierte Rohzählungen im gewählten Zeitraum · 22 × 20 Klassen · logarithmische Farbe</p></div><label>Gerät<select id="spectrum-device"></select></label></div><div id="heatmap" class="chart heatmap"></div><p class="hint">Die letzte Durchmesserklasse ist offen ab 8 mm. Die Farbstärke richtet sich nach dem Maximum des ausgewählten Geräts.</p></div>
-        <div class="plot-card"><div class="card-head"><div><h2>Partikelgrößen im Gerätevergleich</h2><p>Alle Geschwindigkeitsklassen zusammengefasst. Gültige Telegrammminuten je Gerät stehen in der Legende.</p></div><button class="small save-image" data-chart="sizes">PNG speichern</button></div><div class="chart" id="sizes"></div></div>
-      </section>
-      <section id="view-health" class="view hidden">
-        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Geräte- und Außentemperatur</h2></div><div id="temperatures" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Scheibenheizung</h2></div><div id="heaters" class="chart"></div></div></div>
-        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Versorgungsspannung</h2></div><div id="supply" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Regel-Istspannung</h2><span class="muted">Referenz 4010 ± 5 mV</span></div><div id="control" class="chart"></div></div></div>
-        <div class="hint">Die Temperatur- und Heizkurven lassen sich gemeinsam nach Uhrzeit untersuchen. In verdichteten Ansichten zeigt der Tooltip zusätzlich Minimum und Maximum der Spannungen.</div>
-      </section>
-      <section id="view-quality" class="view hidden">
-        <div class="plot-card"><div class="card-head"><div><h2>Abdeckung und Messqualität</h2><p>Erwartet wird jede Minute des gewählten Zeitfensters pro Gerät. Exportlücken zählen ebenfalls als fehlende Minuten.</p></div></div><div id="quality-table" class="table-wrap"></div></div>
-        <div class="two-col"><div class="plot-card"><div class="card-head"><h2>Klassifikationsqualität</h2></div><div id="quality" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Statusmeldungen</h2></div><div id="warnings" class="chart"></div></div></div>
-        <div class="plot-card"><div class="card-head"><h2>Aktive Statusflags im gewählten Zeitraum</h2></div><div id="flag-table" class="table-wrap"></div></div>
-      </section>
-    </div>
-    <section id="view-import" class="view hidden">
-      <div id="upload-card" class="plot-card">
-        <h2>CSV-Dateien auf diesem Gerät einlesen</h2>
-        <p class="hint">Wähle Standort und Logger-ID deiner Dateien. Deine Messdaten werden ausschließlich im Browser verarbeitet. Sie stehen später in diesem Browser auf diesem Gerät wieder zur Verfügung.</p>
-        <form id="upload-form" class="upload-fields">
-          <label>Standort<select id="upload-device" required></select></label>
-          <label>Logger-ID<input id="upload-id" value="01" pattern="[0-9]{1,2}" maxlength="2" required inputmode="numeric"></label>
-          <label>Zeichenkodierung<select id="upload-encoding"><option value="utf-8">UTF-8 (Standard)</option><option value="windows-1252">Windows (CP1252)</option><option value="utf-16">UTF-16</option></select></label>
-          <label class="upload-file">CSV-Dateien<input id="upload-file" type="file" accept=".csv,.txt,.log" multiple required></label>
-          <button id="upload-button" class="primary" type="submit">Lokal einlesen</button>
-        </form>
-        <progress id="upload-progress" value="0" max="100" class="hidden" aria-label="Importfortschritt"></progress>
-        <p id="upload-message" class="hint" role="status" aria-live="polite"></p>
-      </div>
-      <div class="plot-card"><h2>Import und Browserspeicher</h2><p class="hint">Erwartetes Format wie bei deinem Loggerexport: Loggerzeit, ID und Telegrammfelder. Semikolon, Tabulator und Komma werden erkannt. Für jeden Standort können mehrere Dateien nacheinander eingelesen werden. Vorhandene Geräteminuten werden nur einmal gezählt.</p><p id="import-status" class="muted" role="status"></p><div id="import-results"></div><p id="storage-status" class="hint"></p><button id="clear-data" class="secondary">Eigene Browserdaten zurücksetzen</button><p class="hint">Deine Originaldateien bitte aufbewahren. Beim Löschen der Website-Daten oder auf einem anderen Gerät musst du die CSVs erneut auswählen.</p></div>
-      <div class="plot-card"><div class="card-head"><h2>Standorte in diesem Browser</h2></div><div id="config-table" class="table-wrap"></div></div>
-      <div class="plot-card"><div class="card-head"><div><h2>Importprotokoll</h2><p>Fehler und Duplikate beziehen sich auf den gesamten jeweiligen Dateiimport.</p></div></div><div id="import-history" class="table-wrap"></div></div>
-    </section>
-    <footer><span id="footer-range"></span><span>Maus über eine Kurve für Werte · Ziehen zum Vergrößern · Doppelklick zum Zurücksetzen</span></footer>
-  </main>
-  <div id="tooltip" role="status" class="tooltip hidden"></div>
-</body>
-</html>
+<aside class="sidebar">
+<a class="brand" href="./"><span class="brand-icon">◒</span><span>RAINER<small>DISDROMETER</small></span></a>
+<nav aria-label="Ansichten"><button data-view="overview" class="nav active">Tropfen & Energie</button><button data-view="comparison" class="nav">Spektren vergleichen</button><button data-view="import" class="nav">Daten hinzufügen</button></nav>
+<div class="sidebar-bottom">Im Browser verarbeitet<br><span class="muted">Thies Clima · 3 Disdrometer</span></div>
+</aside>
+<main>
+<header><div><p class="eyebrow">RAINER · GERÄTEVERGLEICH</p><h1 id="page-title">Tropfen und kinetische Energie</h1></div><div class="header-actions"><label>Datensatz<select id="dataset"><option value="demo">Beispieldaten</option><option value="own">Eigene Messdaten</option></select></label><span id="mode" class="badge">Beispieldaten</span><button id="export" class="secondary">Auswahl als CSV</button></div></header>
+<div id="notice" role="status" aria-live="polite"></div>
+<section class="filters" aria-label="Geräte und Zeitraum">
+<div class="device-row"><span class="filter-label">Geräte</span><div id="devices"></div><span id="availability" class="muted"></span></div>
+<div class="time-row"><div class="presets"><button data-hours="6">6 Stunden</button><button data-hours="24" class="selected">24 Stunden</button><button data-hours="168">7 Tage</button><button data-hours="720">30 Tage</button><button data-hours="all">Gesamt</button></div><div class="dates"><label>Von<input id="start" type="datetime-local"></label><label>Bis<input id="end" type="datetime-local"></label><button id="apply" class="primary">Anzeigen</button></div></div>
+<div class="filter-foot"><div><button id="previous" class="small">Vorheriger Zeitraum</button><button id="next" class="small">Nächster Zeitraum</button></div><label class="resolution">Auflösung<select id="resolution"><option value="auto">Automatisch</option><option value="1">1 Minute</option><option value="5">5 Minuten</option><option value="15">15 Minuten</option><option value="60">1 Stunde</option><option value="1440">1 Tag</option></select></label></div>
+<div class="comparison-controls"><label><input id="common" type="checkbox" checked> Gemeinsame gültige Minuten der ausgewählten Geräte</label><label>Bezug<select id="unit"><option value="sensor">Erfasste Tropfen / Energie</option><option value="area">Je Quadratmeter Messfläche</option></select></label></div>
+<details class="area-settings"><summary>Messflächen für den Flächenvergleich einstellen</summary><p class="hint">Für J/m² und Tropfen/m² wird die tatsächliche Messfläche benötigt. Trage den AU-Parameter jedes Geräts ein. Laut Thies gilt A = 4600 mm² × 1000 / AU. Bei eigenen Daten ist kein AU-Wert vorbelegt.</p><div id="areas" class="area-inputs"></div></details>
+</section>
+<div id="empty" class="empty hidden"><h2>Deine Messdaten beginnen hier</h2><p>Wähle deine CSV-Dateien unter „Daten hinzufügen“ aus. Sie bleiben im Browser dieses Geräts.</p><button id="empty-import" class="primary">Daten hinzufügen</button></div>
+<div id="data-content">
+<section id="view-overview" class="view">
+<div id="stats" class="stats device-stats"></div>
+<p id="coverage-note" class="hint"></p>
+<div class="plot-card"><div class="card-head"><div><h2>Tropfengröße über die Zeit</h2><p>Eine Zeile je Durchmesserklasse · Farbe zeigt mittlere Tropfenanzahl je Minute · eine gemeinsame Farbskala für alle Geräte</p></div><label><input id="log-color" type="checkbox" checked> Logarithmische Farben</label></div><div id="time-legend" class="color-legend"></div><div id="time-maps" class="heatmap-gallery time-gallery"></div></div>
+<div class="two-col"><div class="plot-card"><div class="card-head"><h2>Tropfenanzahl über die Zeit</h2><button class="small save-image" data-chart="drops">PNG</button></div><div id="drops" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Mittlerer Tropfendurchmesser</h2><button class="small save-image" data-chart="diameter">PNG</button></div><div id="diameter" class="chart"></div></div></div>
+<div class="two-col"><div class="plot-card"><div class="card-head"><div><h2>Kinetischer Energieeintrag</h2><p>Mittel je Messminute · Durchmesserklassen unter 8 mm</p></div><button class="small save-image" data-chart="energy">PNG</button></div><div id="energy" class="chart"></div></div><div class="plot-card"><div class="card-head"><div><h2>Aufsummierte kinetische Energie</h2><p>Durchmesserklassen unter 8 mm</p></div><button class="small save-image" data-chart="cumulative">PNG</button></div><div id="cumulative" class="chart"></div></div></div>
+<div class="two-col"><div class="plot-card"><div class="card-head"><h2>Innentemperatur der Geräte</h2><button class="small save-image" data-chart="temperature">PNG</button></div><div id="temperature" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Niederschlagsintensität</h2><button class="small save-image" data-chart="intensity">PNG</button></div><div id="intensity" class="chart"></div></div></div>
+<div class="plot-card"><div class="card-head"><div><h2>Regenereignisse je Gerät</h2><p>Klicken, um den Zeitraum zu öffnen · Ereignisse nutzen die jeweils verfügbaren Geräteminuten</p></div><label>Trockenpause<select id="dry"><option value="30">30 Minuten</option><option value="60" selected>60 Minuten</option><option value="120">120 Minuten</option></select></label></div><div id="events" class="table-wrap"></div></div>
+</section>
+<section id="view-comparison" class="view hidden">
+<div class="plot-card"><div class="card-head"><div><h2>Durchmesser und Fallgeschwindigkeit</h2><p>Gleiche Farben bedeuten bei allen Geräten dieselbe mittlere Anzahl je Minute und Klasse.</p></div><button id="save-spectrum" class="small">Heatmaps als PNG</button></div><div id="spectrum-legend" class="color-legend"></div><div id="spectrum-maps" class="heatmap-gallery"></div><p id="spectrum-note" class="hint"></p></div>
+<div class="plot-card"><div class="card-head"><h2>Größenverteilungen direkt vergleichen</h2><button class="small save-image" data-chart="sizes">PNG</button></div><div id="sizes" class="chart"></div></div>
+<div class="plot-card"><div class="card-head"><div><h2>Differenz zwischen zwei Geräten</h2><p>Immer gemeinsame gültige Minuten des gewählten Gerätepaars · A minus B</p></div><label>Gerätepaar<select id="pair"></select></label></div><p id="pair-note" class="hint"></p><div id="difference-legend" class="color-legend"></div><div id="difference-map" class="heatmap difference-heatmap"></div><p class="hint">Orange bedeutet mehr bei A, Blau mehr bei B. Die Skala ist symmetrisch um null und gilt für alle verfügbaren Gerätepaare im Zeitfenster.</p><button id="save-difference" class="small">Differenz als PNG</button></div>
+<div class="two-col"><div class="plot-card"><div class="card-head"><h2>Differenz der Tropfenanzahl über die Zeit</h2></div><div id="difference-drops" class="chart"></div></div><div class="plot-card"><div class="card-head"><h2>Differenz des Energieeintrags über die Zeit</h2></div><div id="difference-energy" class="chart"></div></div></div>
+<div class="plot-card"><div class="card-head"><h2>Paarweiser Vergleich auf gemeinsamer Datenbasis</h2></div><div id="comparison" class="table-wrap"></div></div>
+</section>
+</div>
+<section id="view-import" class="view hidden">
+<div class="plot-card"><h2>CSV-Dateien auf diesem Gerät einlesen</h2><p class="hint">Wähle Standort und Logger-ID. Die Messdaten werden ausschließlich in diesem Browser verarbeitet und gespeichert.</p><form id="upload-form" class="upload-fields"><label>Standort<select id="upload-device" required></select></label><label>Logger-ID<input id="upload-id" value="01" pattern="[0-9]{1,2}" maxlength="2" required inputmode="numeric"></label><label>Zeichenkodierung<select id="upload-encoding"><option value="utf-8">UTF-8 (Standard)</option><option value="windows-1252">Windows (CP1252)</option><option value="utf-16">UTF-16</option></select></label><label class="upload-file">CSV-Dateien<input id="upload-file" type="file" accept=".csv,.txt,.log" multiple required></label><button id="upload-button" class="primary" type="submit">Lokal einlesen</button></form><progress id="upload-progress" value="0" max="100" class="hidden" aria-label="Importfortschritt"></progress><p id="upload-message" class="hint" role="status"></p></div>
+<div class="plot-card"><h2>Import und Browserspeicher</h2><p id="import-status" class="muted" role="status"></p><div id="import-results"></div><p id="storage-status" class="hint"></p><button id="clear-data" class="secondary">Eigene Browserdaten zurücksetzen</button><p class="hint">Originaldateien bitte aufbewahren. Auf anderen Geräten oder nach dem Löschen der Website-Daten müssen die CSVs erneut eingelesen werden.</p></div>
+<div class="plot-card"><h2>Standorte in diesem Browser</h2><div id="config-table" class="table-wrap"></div></div><div class="plot-card"><h2>Importprotokoll</h2><div id="import-history" class="table-wrap"></div></div>
+</section>
+<details class="methodology"><summary>Berechnung und Grenzen der Auswertung</summary><p>Als Regen werden Minuten mit gültiger Intensität und gemeldeter Art Regen, Niesel oder Regen mit Niesel ausgewertet. Gültige Trockenminuten gehen mit null Tropfen und null Energie ein. Andere Niederschlagsarten und ungültige Intensitäten bilden Lücken. Die Spektren sind Rohzählungen innerhalb dieser Minuten.</p><p>E = Σ n × ½ × ρ × (π/6) × D³ × v², mit ρ = 1000 kg/m³. Durchmesser werden von mm in m umgerechnet. D und v sind die arithmetischen Mitten der Thies-Klassen. Die offene Durchmesserklasse ab 8 mm ist in den Anzahlen enthalten und wird für Energie und mittleren Durchmesser ausgelassen. Die Zahl dieser Tropfen wird angezeigt. Die letzte Geschwindigkeitsklasse reicht von 10 bis 20 m/s, verwendet wird 15 m/s.</p><p>Die Energie ist eine Näherung für kugelförmige Wassertropfen. Bei Flächenbezug werden Anzahl und Energie durch die aus AU berechnete Gerätefläche geteilt. Die Heatmaps zeigen Anzahlen pro Minute; Unterschiede der Messdauer werden damit ausgewiesen. Für faire Vergleiche ist „Gemeinsame gültige Minuten“ voreingestellt. Die Differenzplots verwenden stets die gemeinsamen Minuten des jeweiligen Paars.</p><p>Innentemperaturen nutzen alle verfügbaren Temperaturwerte. Ereignisse werden nach der gewählten beobachteten Trockenpause getrennt; Datenlücken unterbrechen sie. Ereignisse am Fensterrand können angeschnitten sein.</p></details>
+<footer><span id="footer-range"></span><span>Maus über Grafiken für Werte · Ziehen zum Vergrößern · Doppelklick für Gesamt</span></footer>
+</main><div id="tooltip" class="tooltip hidden" role="status"></div>
+</body></html>
